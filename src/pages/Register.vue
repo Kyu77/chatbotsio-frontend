@@ -2,10 +2,16 @@
 
 
 import {ref} from "vue";
+import {useRouter} from "vue-router"
+import Alert from "../components/Alert.vue";
 
+const router = useRouter()
 const usernameInput = ref("")
 const emailInput = ref("")
 const passwordInput = ref("")
+
+const errorRegisterRef = ref(false)
+const  successRegisterRef = ref(false)
 
 async function onSubmit() {
 
@@ -22,8 +28,13 @@ async function onSubmit() {
     body : JSON.stringify(data)
   })
 
-  if(!response.ok) return alert("Register Error")
-  alert("Register OK")
+  if(!response.ok) {
+    errorRegisterRef.value = true
+    return
+  }
+
+  successRegisterRef.value = true
+  setTimeout(() => router.push("/login"), 3000 )
 
 }
 
@@ -31,9 +42,10 @@ async function onSubmit() {
 </script>
 
 <template>
+  <Alert v-if="errorRegisterRef" value="Erreur lors de l'inscription" class="alert-error"/>
+  <Alert v-if="successRegisterRef" value="Inscription Ok" class="alert-success"/>
+
   <h1 class="text-4xl text-center">Register page</h1>
-
-
   <form class="w-1/2 mx-auto" @submit.prevent="onSubmit">
      <div>
        <label for="username">Username</label>

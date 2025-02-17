@@ -1,9 +1,12 @@
 <script setup lang="ts">
-
+const props = defineProps(['value', 'class'])
 </script>
 
 <template>
-  $END$
+
+  <div role="alert" class="alert" :class="props.class">
+    <span>{{props.value}}</span>
+  </div>
 </template>
 
 <style scoped>
