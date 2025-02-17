@@ -37,6 +37,11 @@ const chatHistories = ref([])
 
 
 
+const onChatAdd = () => {
+  messages.value = []
+  router.push("/")
+}
+
 // Get Last Chat
 
 const getLastChat = async () => {
@@ -124,7 +129,10 @@ async  function onSubmit () {
 }
 
 const bubblePosition = computed(() => (role: string) => role === 'user' ? 'chat-end' : 'chat-start'); 
-onMounted(() => getHistory())
+onMounted(() => {
+  getHistory()
+  if(chatId.value) getChatByID(chatId.value)
+})
 // Watch URL ID update
 watch(() => route.params.id, (newId) => {
   chatId.value = newId as string;
@@ -160,6 +168,7 @@ watch(() => route.params.id, (newId) => {
       <ul class="menu bg-base-200 text-base-content min-h-full w-80 p-4">
         <!-- Sidebar content here -->
          <template v-if="chatHistories.length > 0">
+           <button @click="onChatAdd">New chat</button>
           <li v-for="history in chatHistories">
             <RouterLink
                 :to="{ name: 'chat', params: { id: history._id } }"
