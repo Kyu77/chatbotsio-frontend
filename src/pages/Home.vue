@@ -16,7 +16,7 @@ const marked = new Marked(
 
 
 
-import {computed, ref} from "vue";
+import {computed, ref, onMounted} from "vue";
 import {useAuthStore} from "../../store/authStore.ts";
 import {useModelStore} from "../../store/modelStore.ts";
 import Alert from "../components/Alert.vue";
@@ -29,6 +29,17 @@ const userInput = ref("")
 const messages = ref([])
 const chatId = ref("")
 const errorChat = ref(false)
+const chatHistories = ref([])
+
+
+
+async function getHistory() {
+  const response = await fetch(import.meta.env.VITE_HISTORY_ENDPOINT, {
+    headers: {Authorization: `Bearer ${authStore.token}`},
+  })
+  if(!response.ok) return alert("Erreur chargement historique")
+  chatHistories.value = await response.json()
+}
 
 
 async  function onSubmit () {
@@ -80,7 +91,9 @@ async  function onSubmit () {
 
 }
 
-const bubblePosition = computed(() => (role: string) => role === 'user' ? 'chat-end' : 'chat-start');
+const bubblePosition = computed(() => (role: string) => role === 'user' ? 'chat-end' : 'chat-start'); 
+onMounted(() => getHistory())
+
 </script>
 
 <template>
@@ -109,8 +122,13 @@ const bubblePosition = computed(() => (role: string) => role === 'user' ? 'chat-
       <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
       <ul class="menu bg-base-200 text-base-content min-h-full w-80 p-4">
         <!-- Sidebar content here -->
-        <li><a>Sidebar Item 1</a></li>
-        <li><a>Sidebar Item 2</a></li>
+         <template v-if="chatHistories.length > 0">
+          <li v-for="history in chatHistories">
+            <RouterLink to="">{{ history.title }}</RouterLink>
+          </li>
+         </template>
+         <template v-else><span>Historique vide</span></template>
+       
       </ul>
     </div>
   </div>

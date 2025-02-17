@@ -1,12 +1,18 @@
 <script setup lang="ts">
   import {useRouter} from "vue-router";
   import {useAuthStore} from "../../store/authStore.ts"
-  import {onMounted} from "vue";
+  import {onMounted, ref, onBeforeMount} from "vue";
   import {useModelStore} from "../../store/modelStore.ts";
+  import {daisyUiThemes} from "../themes";
+  import {useThemeStore} from "../../store/themeStore.ts";
 
+
+  const themeStore = useThemeStore()
   const modelStore =   useModelStore()
   const authStore = useAuthStore()
   const router = useRouter()
+
+  const userTheme = ref(themeStore.getCurrentTheme)
 
   function onLogout() {
     authStore.logout()
@@ -18,6 +24,9 @@
   }
 
 
+  onBeforeMount(() => {
+    document.querySelector("html")!.dataset.theme = userTheme.value
+  })
   onMounted(() => {
       modelStore.fetchModels()
   })
@@ -30,9 +39,15 @@
     <div class="flex-1">
       <a class="btn btn-ghost text-xl">daisyUI</a>
     </div>
+
+    <select class="select w-full max-w-xs" v-model="userTheme" @change="themeStore.changeTheme(userTheme)">
+      <option :selected="userTheme === theme" :key="theme" v-for="theme in daisyUiThemes">{{theme}}</option>
+    </select>
+
     <select  @change="onModelChange($event)" v-if="authStore.isAuthenticated"  class="select w-full max-w-xs">
       <option :selected="modelStore.chosenModel === model" :value="model" :key="model" v-for="model in modelStore.modelsList" >{{model}}</option>
     </select>
+
 
     <div class="flex-none gap-2">
       <div class="dropdown dropdown-end">
