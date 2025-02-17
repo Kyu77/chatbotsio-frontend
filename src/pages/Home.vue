@@ -42,6 +42,24 @@ const onChatAdd = () => {
   router.push("/")
 }
 
+
+const onDeleteChat = async (id : string) => {
+  const ok = confirm("etes vous sur de vouloir supprimer le chat")
+  if(!ok) return
+
+  const response = await fetch(import.meta.env.VITE_DELETE_CHAT_ENDPOINT+`/${id}` ,{
+    method: "DELETE",
+    headers: {Authorization: `Bearer ${authStore.token}`},
+  })
+  if(!response.ok) return alert("erreur suppression du chat")
+  chatHistories.value = chatHistories.value.filter(history => history._id !== id)
+  await router.push("/")
+  messages.value = []
+
+
+  // request HTTP
+}
+
 // Get Last Chat
 
 const getLastChat = async () => {
@@ -169,12 +187,14 @@ watch(() => route.params.id, (newId) => {
         <!-- Sidebar content here -->
          <template v-if="chatHistories.length > 0">
            <button @click="onChatAdd">New chat</button>
-          <li v-for="history in chatHistories">
+          <li class="flex no-wrap justify-between" v-for="history in chatHistories">
             <RouterLink
+
                 :to="{ name: 'chat', params: { id: history._id } }"
                 :class="history._id === chatId ? 'active' : ''">
               {{ history.title }}
             </RouterLink>
+            <button class="btn btn-circle btn-error" @click="onDeleteChat(history._id)">X</button>
           </li>
          </template>
          <template v-else><span>Historique vide</span></template>
