@@ -15,12 +15,14 @@ const marked = new Marked(
 );
 
 
-
-import {computed, ref, onMounted} from "vue";
+import {computed, ref, onMounted, watch} from "vue";
 import {useAuthStore} from "../../store/authStore.ts";
 import {useModelStore} from "../../store/modelStore.ts";
 import Alert from "../components/Alert.vue";
+import {useRoute} from "vue-router";
 
+
+const route = useRoute()
 const authStore = useAuthStore()
 const modelStore = useModelStore()
 
@@ -39,6 +41,16 @@ async function getHistory() {
   })
   if(!response.ok) return alert("Erreur chargement historique")
   chatHistories.value = await response.json()
+}
+
+
+// GET CHAT BY ID
+const getChatByID = async (id: string) => {
+  const response = await fetch(`${import.meta.env.VITE_CHAT_ENDPOINT}/${id}`, {
+    headers: {Authorization: `Bearer ${authStore.token}`},
+  })
+  const data = await response.json()
+  messages.value = data.contents
 }
 
 
@@ -93,6 +105,11 @@ async  function onSubmit () {
 
 const bubblePosition = computed(() => (role: string) => role === 'user' ? 'chat-end' : 'chat-start'); 
 onMounted(() => getHistory())
+// Watch URL ID update
+watch(() => route.params.id, (newId) => {
+  chatId.value = newId as string;
+  if(chatId.value) getChatByID(chatId.value)
+});
 
 </script>
 
@@ -124,7 +141,11 @@ onMounted(() => getHistory())
         <!-- Sidebar content here -->
          <template v-if="chatHistories.length > 0">
           <li v-for="history in chatHistories">
-            <RouterLink to="">{{ history.title }}</RouterLink>
+            <RouterLink
+                :to="{ name: 'chat', params: { id: history._id } }"
+                :class="history._id === chatId ? 'active' : ''">
+              {{ history.title }}
+            </RouterLink>
           </li>
          </template>
          <template v-else><span>Historique vide</span></template>

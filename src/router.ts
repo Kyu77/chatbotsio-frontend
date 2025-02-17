@@ -9,6 +9,7 @@ const routes = [
     {path : '/', component : Home, meta : {requiresAuth : true} },
     {path : '/login', component : Login,  meta : {requiresGuest : true} },
     {path : '/register', component : Register,  meta : {requiresGuest : true} },
+    {path : '/chat/:id', component : Home,  meta : {requiresAuth : true}, name : "chat" },
 ]
 
 export const router = createRouter({
