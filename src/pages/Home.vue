@@ -19,10 +19,11 @@ import {computed, ref, onMounted, watch} from "vue";
 import {useAuthStore} from "../../store/authStore.ts";
 import {useModelStore} from "../../store/modelStore.ts";
 import Alert from "../components/Alert.vue";
-import {useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 
 
 const route = useRoute()
+const router = useRouter()
 const authStore = useAuthStore()
 const modelStore = useModelStore()
 
@@ -32,6 +33,22 @@ const messages = ref([])
 const chatId = ref("")
 const errorChat = ref(false)
 const chatHistories = ref([])
+
+
+
+
+// Get Last Chat
+
+const getLastChat = async () => {
+  const response = await fetch(import.meta.env.VITE_LAST_CHAT_ENDPOINT,{
+    headers: {Authorization: `Bearer ${authStore.token}`},
+  })
+  const data = await response.json()
+
+  await router.push(`/chat/${data._id}`)
+  await getChatByID(data._id)
+  await getHistory()
+}
 
 
 
@@ -91,6 +108,9 @@ async  function onSubmit () {
   while (true) {
     const {done, value} = await reader.read()
     if (done) {
+      if(!chatId.value) {
+        await getLastChat()
+      }
       break
     }
 
