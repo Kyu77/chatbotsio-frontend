@@ -46,23 +46,23 @@ async function onSubmit() {
   <Alert v-if="successRegisterRef" value="Inscription Ok" class="alert-success"/>
 
   <h1 class="text-4xl text-center">Register page</h1>
-  <form class="w-1/2 mx-auto" @submit.prevent="onSubmit">
+  <form class="w-1/2 mx-auto my-48" @submit.prevent="onSubmit">
      <div>
        <label for="username">Username</label>
-       <input v-model="usernameInput" id="username" type="text" class="input input-bordered w-full" />
+       <input v-model="usernameInput" id="username" type="text" class="input input-bordered w-full" required />
      </div>
 
     <div>
       <label for="email">Email</label>
-      <input v-model="emailInput" id="email" type="email" class="input input-bordered w-full" />
+      <input v-model="emailInput" id="email" type="email" class="input input-bordered w-full" required />
     </div>
 
     <div>
       <label for="password">Password</label>
-      <input v-model="passwordInput" id="password" type="password" class="input input-bordered w-full" />
+      <input v-model="passwordInput" id="password" type="password" class="input input-bordered w-full" required />
     </div>
 
-    <button type="submit" class="btn btn-primary">Register</button>
+    <button type="submit" class="btn btn-primary my-4">Register</button>
   </form>
 </template>
 

@@ -29,6 +29,7 @@
   })
   onMounted(() => {
       modelStore.fetchModels()
+
   })
 </script>
 
@@ -37,7 +38,12 @@
 
   <div class="navbar bg-base-100">
     <div class="flex-1">
-      <a class="btn btn-ghost text-xl">daisyUI</a>
+      <template v-if="authStore.isAuthenticated">
+        <label for="my-drawer" class="cursor-pointer">
+          <img src="/drawer.png" alt="" width=32>
+        </label>
+      </template>
+      <h1 class="btn btn-ghost text-xl">ChatBotSIO</h1>
     </div>
 
     <select class="select w-full max-w-xs" v-model="userTheme" @change="themeStore.changeTheme(userTheme)">
@@ -69,7 +75,7 @@
             </template>
 
          <template v-if="authStore.isAuthenticated">
-           <li><a>Profile</a></li>
+           <li><RouterLink to="/profile">Profile</RouterLink></li>
            <li @click="onLogout"><a>Logout</a></li>
          </template>
         </ul>

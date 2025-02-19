@@ -1,25 +1,14 @@
 <script setup lang="ts">
-import { Marked } from "marked"
-import { markedHighlight } from "marked-highlight";
-import hljs from 'highlight.js';
-
-
-const marked = new Marked(
-    markedHighlight({
-      langPrefix: 'hljs language-',
-      highlight(code, lang, _info) {
-        const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-        return hljs.highlight(code, { language }).value;
-      }
-    })
-);
 
 
 import {computed, ref, onMounted, watch} from "vue";
+import {useRoute, useRouter} from "vue-router";
+
 import {useAuthStore} from "../../store/authStore.ts";
 import {useModelStore} from "../../store/modelStore.ts";
 import Alert from "../components/Alert.vue";
-import {useRoute, useRouter} from "vue-router";
+import {marked} from "../utils/marked.ts";
+import type {History, Message} from "../types";
 
 
 const route = useRoute()
@@ -27,12 +16,13 @@ const router = useRouter()
 const authStore = useAuthStore()
 const modelStore = useModelStore()
 
-const disbleSubmitButton = ref(false)
+const disableSubmitButton = ref(false)
 const userInput = ref("")
-const messages = ref([])
+const messages = ref<Message[]>([])
 const chatId = ref("")
 const errorChat = ref(false)
-const chatHistories = ref([])
+const chatHistories = ref<History[]>([])
+const chatContainerRef = ref<HTMLElement|null>(null)
 
 
 
@@ -56,11 +46,7 @@ const onDeleteChat = async (id : string) => {
   await router.push("/")
   messages.value = []
 
-
-  // request HTTP
 }
-
-// Get Last Chat
 
 const getLastChat = async () => {
   const response = await fetch(import.meta.env.VITE_LAST_CHAT_ENDPOINT,{
@@ -95,7 +81,8 @@ const getChatByID = async (id: string) => {
 
 
 async  function onSubmit () {
-  disbleSubmitButton.value = true
+  if(!userInput.value.trim()) return
+  disableSubmitButton.value = true
   const userMessage = {content: userInput.value, role: 'user'}
   userInput.value = ""
 
@@ -142,20 +129,35 @@ async  function onSubmit () {
     messages.value = [...messages.value]
   }
 
-  disbleSubmitButton.value = false
+  disableSubmitButton.value = false
 
 }
 
-const bubblePosition = computed(() => (role: string) => role === 'user' ? 'chat-end' : 'chat-start'); 
+function scrollToBottom() {
+  if (chatContainerRef.value) {
+    chatContainerRef.value.scrollTop = chatContainerRef.value.scrollHeight;
+  }
+}
+
+const bubblePosition = computed(() => (role: string) => role === 'user' ? 'chat-end' : 'chat-start');
+
 onMounted(() => {
   getHistory()
+  chatId.value = (route.params.id || "" ) as string
   if(chatId.value) getChatByID(chatId.value)
 })
+
 // Watch URL ID update
 watch(() => route.params.id, (newId) => {
   chatId.value = newId as string;
   if(chatId.value) getChatByID(chatId.value)
 });
+
+// Trigger Scroll to Bottom
+watch(messages, () => {
+  scrollToBottom();
+}, { deep: true });
+
 
 </script>
 
@@ -166,39 +168,51 @@ watch(() => route.params.id, (newId) => {
     <input id="my-drawer" type="checkbox" class="drawer-toggle" />
     <div class="drawer-content">
       <!-- Page content here -->
+      <template v-if="messages.length === 0 && !chatId">
+        <h1 class="text-xl text-center"> Comment puis-je vous aider ?</h1>
+      </template>
       <Alert v-if="errorChat" value="Erreur Stream chat" class="alert-error"/>
 
-      <main class=" rounded p-10 my-10 min-h-[70vh] max-h-[70vh] overflow-scroll ">
-        <div v-for="message in messages" :key="Date.now()"   class="chat" :class="bubblePosition(message.role!)">
-          <div class="chat-bubble " v-html="marked.parse(message.content!)"></div>
+      <main ref="chatContainerRef" class=" rounded p-10 my-10 min-h-[70vh] max-h-[70vh] overflow-scroll ">
+        <div v-for="message in messages" :key="message._id"   class="chat" :class="bubblePosition(message.role)">
+          <div class="chat-bubble " v-html="marked.parse(message.content)"></div>
         </div>
       </main>
       <form @submit.prevent="onSubmit"
             class=" relative bottom-0 left-0 right-0 w-2/3 mx-auto flex items-center gap-2 justify-center">
-        <textarea v-model="userInput"  class="textarea w-full h-[48px] textarea-bordered" placeholder="CHAT HERE !!"></textarea>
+        <textarea
+            @keydown.prevent.exact.enter="onSubmit"
+            @keydown.enter.shift.exact.stop="userInput += '\n'"
+            v-model="userInput"
+            class="textarea w-full h-[48px] textarea-bordered"
+            placeholder="CHAT HERE !!"
+            required
+        ></textarea>
 
-        <button :disabled="disbleSubmitButton"  type="submit" class="btn btn-outline btn-accent">Send</button>
+        <button :disabled="disableSubmitButton || !userInput" type="submit" class="btn btn-outline btn-accent">Send</button>
       </form>
-      <label for="my-drawer" class="btn btn-primary drawer-button">Open drawer</label>
+
     </div>
     <div class="drawer-side">
       <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
       <ul class="menu bg-base-200 text-base-content min-h-full w-80 p-4">
         <!-- Sidebar content here -->
          <template v-if="chatHistories.length > 0">
-           <button @click="onChatAdd">New chat</button>
-          <li class="flex no-wrap justify-between" v-for="history in chatHistories">
-            <RouterLink
 
+           <button class=" mb-4  btn btn-primary btn-outline" @click="onChatAdd">Nouvelle conversation</button>
+          <li> <h2 class="text-2xl mb-4">Historique</h2></li>
+          <li class="flex items-center justify-between flex-row" v-for="history in chatHistories">
+            <RouterLink
+                :title="history.title"
+                class="flex-10"
                 :to="{ name: 'chat', params: { id: history._id } }"
                 :class="history._id === chatId ? 'active' : ''">
-              {{ history.title }}
+              {{ history.title.length > 20 ? history.title.substring(0, 20) + '...'  : history.title }}
             </RouterLink>
-            <button class="btn btn-circle btn-error" @click="onDeleteChat(history._id)">X</button>
+            <span class="text-error flex-1" @click="onDeleteChat(history._id)">&#128465;</span>
           </li>
          </template>
          <template v-else><span>Historique vide</span></template>
-       
       </ul>
     </div>
   </div>

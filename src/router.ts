@@ -4,9 +4,11 @@ import Home from "./pages/Home.vue"
 import Login from "./pages/Login.vue"
 import Register from "./pages/Register.vue"
 import {useAuthStore} from "../store/authStore.ts";
+import Profile from "./pages/Profile.vue";
 
 const routes = [
     {path : '/', component : Home, meta : {requiresAuth : true} },
+    {path : '/profile', component : Profile, meta : {requiresAuth : true} },
     {path : '/login', component : Login,  meta : {requiresGuest : true} },
     {path : '/register', component : Register,  meta : {requiresGuest : true} },
     {path : '/chat/:id', component : Home,  meta : {requiresAuth : true}, name : "chat" },
@@ -35,6 +37,4 @@ router.beforeEach((to, _from, next) => {
     else {
         next();
     }
-
-
 });

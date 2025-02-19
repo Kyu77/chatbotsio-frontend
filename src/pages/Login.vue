@@ -40,18 +40,18 @@ async function onSubmit () {
 <template>
   <Alert v-if="errorLoginRef" class="alert-error" value="Erreur lors de la connexion"/>
   <h1 class="text-4xl text-center">Login page</h1>
-  <form class="w-1/2 mx-auto" @submit.prevent="onSubmit">
+  <form class="w-1/2 mx-auto my-48" @submit.prevent="onSubmit">
     <div>
       <label for="email">Email</label>
-      <input v-model="emailRef" id="email" type="email" class="input input-bordered w-full" />
+      <input v-model="emailRef" id="email" type="email" class="input input-bordered w-full" required />
     </div>
 
     <div>
       <label for="password">Password</label>
-      <input v-model="passwordRef" id="password" type="password" class="input input-bordered w-full" />
+      <input v-model="passwordRef" id="password" type="password" class="input input-bordered w-full"  required/>
     </div>
 
-    <button type="submit" class="btn btn-primary">Login</button>
+    <button type="submit" class="btn btn-primary my-4">Login</button>
   </form>
 </template>
 
