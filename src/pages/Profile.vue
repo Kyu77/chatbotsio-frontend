@@ -12,6 +12,8 @@
 
   const errorUpdateUsernameRef = ref(false)
   const successUpdateUsernameRef = ref(false)
+  const errorUpdatePasswordRef =ref(false)
+  const successUpdatePasswordRef =ref(false)
 
   const onSubmitNewUserName = async () => {
     const response = await  fetch(import.meta.env.VITE_UPDATE_USERNAME, {
@@ -22,16 +24,50 @@
 
     if (!response.ok) {
       errorUpdateUsernameRef.value = true;
+      setTimeout(() => {
+        errorUpdateUsernameRef.value = false
+      }, 3000)
       return
     }
     successUpdateUsernameRef.value = true
-
+    setTimeout(() => {
+      successUpdateUsernameRef.value = false
+    }, 3000)
   }
+
+
+  const onSubmitNewPassword = async () => {
+
+    const response = await  fetch(import.meta.env.VITE_UPDATE_PASSWORD, {
+      method : "PUT",
+      headers : {"Content-Type" : "application/json", Authorization: `Bearer ${authStore.token}`},
+      body : JSON.stringify({oldPassword : oldPasswordRef.value, newPassword: newPasswordRef.value})
+    })
+
+    if (!response.ok) {
+      errorUpdatePasswordRef.value = true;
+
+      setTimeout(() => {
+        errorUpdatePasswordRef.value = false
+      }, 3000)
+      return
+    }
+    successUpdatePasswordRef.value = true
+    setTimeout(() => {
+      successUpdatePasswordRef.value = false
+    }, 3000)
+  }
+
+
+
 </script>
 
 <template>
   <Alert v-if="errorUpdateUsernameRef" value="Erreur lors de la mise à jour de votre nom d'utilisateur" class="alert-error"/>
   <Alert v-if="successUpdateUsernameRef" value="Mise à jour de votre nom d'utilisateur validé" class="alert-success"/>
+
+  <Alert v-if="errorUpdatePasswordRef" value="Erreur lors de la mise à jour de votre mot de passe" class="alert-error"/>
+  <Alert v-if="successUpdatePasswordRef" value="Mise à jour de votre mot de passe est  validé" class="alert-success"/>
 
   <h1>Page de profile</h1>
 
@@ -51,15 +87,15 @@
 
   <div class="my-6 w-1/3 mx-auto bordered rounded-2xl p-6 bg-error">
     <h2 class="text-center">Update password</h2>
-    <form class="mx-auto" @submit.prevent="">
+    <form class="mx-auto" @submit.prevent="onSubmitNewPassword">
       <div>
         <label for="old-password">Old Password</label>
-        <input v-model="oldPasswordRef" id="old-password" type="password" class="input input-bordered w-full" required />
+        <input v-model="oldPasswordRef" id="old-password" type="password" class="input input-bordered w-full" required minlength="6" />
       </div>
 
       <div>
         <label for="new-password">New Password</label>
-        <input v-model="newPasswordRef" id="new-password" type="password" class="input input-bordered w-full" required />
+        <input v-model="newPasswordRef" id="new-password" type="password" class="input input-bordered w-full" required min="6" />
       </div>
       <button type="submit" class="btn btn-warning my-4">Update</button>
     </form>
