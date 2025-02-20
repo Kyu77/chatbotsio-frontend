@@ -13,7 +13,7 @@
   const router = useRouter()
 
   const userTheme = ref(themeStore.getCurrentTheme)
-
+  console.log(authStore.decodeJwt())
   function onLogout() {
     authStore.logout()
     router.push("/login")

@@ -7,6 +7,7 @@
 
   const oldPasswordRef =ref("")
   const newPasswordRef= ref("")
+  const newThumbnailRef = ref("")
 
   const authStore = useAuthStore()
 
@@ -14,6 +15,9 @@
   const successUpdateUsernameRef = ref(false)
   const errorUpdatePasswordRef =ref(false)
   const successUpdatePasswordRef =ref(false)
+  const errorUpdateThumbnailRef = ref(false)
+  const successUpdateThumbnailRef = ref(false)
+
 
   const onSubmitNewUserName = async () => {
     const response = await  fetch(import.meta.env.VITE_UPDATE_USERNAME, {
@@ -60,6 +64,41 @@
 
 
 
+  const onChangeThumbnail = (event : Event) => {
+    // @ts-ignore
+    newThumbnailRef.value = event.target.files[0]
+    console.log(event.target.files[0])
+  }
+
+  const onSubmitNewThumbnail = async () => {
+    console.log(newThumbnailRef.value)
+
+    const formData = new FormData()
+    formData.append("image", newThumbnailRef.value)
+    console.log(formData)
+
+    const response = await  fetch(import.meta.env.VITE_UPDATE_THUMBNAIL, {
+      method : "PUT",
+      headers : {Authorization: `Bearer ${authStore.token}`},
+      body : formData
+    })
+
+    if (!response.ok) {
+      errorUpdateThumbnailRef.value = true;
+      setTimeout(() => {
+        errorUpdateThumbnailRef.value = false
+      }, 3000)
+      return
+    }
+
+    successUpdateThumbnailRef.value = true
+    setTimeout(() => {
+      successUpdateThumbnailRef.value = false
+    }, 3000)
+  }
+
+
+
 </script>
 
 <template>
@@ -68,6 +107,9 @@
 
   <Alert v-if="errorUpdatePasswordRef" value="Erreur lors de la mise à jour de votre mot de passe" class="alert-error"/>
   <Alert v-if="successUpdatePasswordRef" value="Mise à jour de votre mot de passe est  validé" class="alert-success"/>
+
+  <Alert v-if="errorUpdateThumbnailRef" value="Erreur lors de la mise à jour de la photo de profile" class="alert-error"/>
+  <Alert v-if="successUpdateThumbnailRef" value="Mise à jour de votre mot de la photo de profile validé" class="alert-success"/>
 
   <h1>Page de profile</h1>
 
@@ -96,6 +138,21 @@
       <div>
         <label for="new-password">New Password</label>
         <input v-model="newPasswordRef" id="new-password" type="password" class="input input-bordered w-full" required min="6" />
+      </div>
+      <button type="submit" class="btn btn-warning my-4">Update</button>
+    </form>
+  </div>
+
+
+
+
+
+  <div class="my-6 w-1/3 mx-auto bordered rounded-2xl p-6 bg-error">
+    <h2 class="text-center">Update thumbnail</h2>
+    <form class="mx-auto" @submit.prevent="onSubmitNewThumbnail">
+      <div>
+        <label for="thumbnail">Thumbnail</label>
+        <input @change="onChangeThumbnail" id="thumbnail" type="file" class="file-input file-input-bordered w-full" />
       </div>
       <button type="submit" class="btn btn-warning my-4">Update</button>
     </form>
