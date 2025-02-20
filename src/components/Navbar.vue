@@ -12,8 +12,9 @@
   const authStore = useAuthStore()
   const router = useRouter()
 
+//@ts-ignore
+const thumbnail = import.meta.env.VITE_BASE_URL + `/${authStore.decodeJwt()!.thumbnail}`
   const userTheme = ref(themeStore.getCurrentTheme)
-  console.log(authStore.decodeJwt())
   function onLogout() {
     authStore.logout()
     router.push("/login")
@@ -59,9 +60,12 @@
       <div class="dropdown dropdown-end">
         <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
           <div class="w-10 rounded-full">
-            <img
+            <img v-if="!authStore.isAuthenticated"
                 alt="Tailwind CSS Navbar component"
-                src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
+                 src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
+            <img v-if="authStore.isAuthenticated"
+                 alt="Tailwind CSS Navbar component"
+                 :src="thumbnail" />
           </div>
         </div>
         <ul

@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "frontend": ".",
     "highlight.js": "^11.11.1",
     "jwt-decode": "^4.0.0",
     "marked": "^15.0.6",

@@ -169,7 +169,7 @@ watch(messages, () => {
     <div class="drawer-content">
       <!-- Page content here -->
       <template v-if="messages.length === 0 && !chatId">
-        <h1 class="text-xl text-center"> Comment puis-je vous aider ?</h1>
+        <h1 class="text-xl text-center"> bonjour Comment puis-je vous aider ?</h1>
       </template>
       <Alert v-if="errorChat" value="Erreur Stream chat" class="alert-error"/>
 
