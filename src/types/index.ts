@@ -6,3 +6,10 @@ export type Message = {
         date: Date,
         role: string
 }
+
+export type User = {
+        id: string,
+        username: string,
+        email: string,
+        thumbnail: string,
+}

@@ -18,6 +18,7 @@ export const useModelStore = defineStore('model', {
             if(!response.ok) return  alert("Erreur recuperation des models")
             const data = await  response.json()
             this.modelsList = data.models
+            if(!this.chosenModel) this.setChosenModel(this.modelsList[0])
         },
 
         setChosenModel (model : string) {
