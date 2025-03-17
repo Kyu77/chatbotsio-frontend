@@ -46,6 +46,8 @@ export const useAuthStore = defineStore('auth', {
                 //@ts-ignore
                 localStorage.setItem('username', user.username);
                 localStorage.setItem("user", JSON.stringify(user));
+                //@ts-ignore
+                localStorage.setItem('thumbnail', `${import.meta.env.VITE_BASE_URL}/${user.thumbnail}`);
                 return jwtDecode(this.token)
             }
         }

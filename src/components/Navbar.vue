@@ -18,15 +18,19 @@ const pathRef = ref("")
 
 const userThumbnailRef = ref(userStore.thumbnail)
 
-
 // Watch URL ID update
 watch(() => userStore.thumbnail, (newThumbnail) => {
+  userThumbnailRef.value = newThumbnail
+  userStore.setThumbnail(newThumbnail!)
+});
+
+watch(() => localStorage.getItem("thumbnail"), (newThumbnail) => {
   userThumbnailRef.value = newThumbnail
 });
 
 
 
-  const userTheme = ref(themeStore.getCurrentTheme)
+const userTheme = ref(themeStore.getCurrentTheme)
   function onLogout() {
     authStore.logout()
     router.push("/login")

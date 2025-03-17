@@ -11,6 +11,7 @@ const usersRef = ref([])
 const searchUsernameRef = ref("");
 const currentPageRef = ref(routes.query.page || 1)
 const totalPagesRef = ref(0)
+const totalUsersRef = ref(0)
 const authStore = useAuthStore()
 
 
@@ -60,6 +61,7 @@ async function getUsers(username: string = searchUsernameRef.value) {
   const data = await response.json();
   usersRef.value = data.users;
   totalPagesRef.value = data.totalPages;
+  totalUsersRef.value = data.totalUsers;
 }
 
 
@@ -83,6 +85,7 @@ onMounted(() =>{
   <div class="container mx-auto">
     <h1 class="text-center text-4xl my-2">Dashboard admin</h1>
 
+    <h2 class="text-center text-2xl my-2">Numbers of users : {{totalUsersRef}}</h2>
     <input
         type="search"
         class="input input-bordered w-full max-w-x"
