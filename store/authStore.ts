@@ -11,7 +11,8 @@ export const useAuthStore = defineStore('auth', {
 
     state:  (): AuthState =>  ({
         token: localStorage.getItem('token') || null, // Initialize token from localStorage
-        user: null // Store user information if needed
+        // @ts-ignore
+        user:  JSON.parse(localStorage.getItem("user"))  || null // Store user information if needed
     }),
 
 
@@ -34,6 +35,7 @@ export const useAuthStore = defineStore('auth', {
 
             this.clearToken(); // Clear the token
             this.user = null; // Clear user data
+            localStorage.clear();
 
         },
 
@@ -43,6 +45,7 @@ export const useAuthStore = defineStore('auth', {
                 this.user = user
                 //@ts-ignore
                 localStorage.setItem('username', user.username);
+                localStorage.setItem("user", JSON.stringify(user));
                 return jwtDecode(this.token)
             }
         }

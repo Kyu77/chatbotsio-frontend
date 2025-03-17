@@ -1,8 +1,12 @@
 import { defineStore } from 'pinia'
+import {useAuthStore} from "./authStore.ts";
+
 export const useUserStore = defineStore('userStore', {
     state: () => ({
-        thumbnail : localStorage.getItem('thumbnail') || '',
-        username: localStorage.getItem('username') || '',
+        // @ts-ignore
+        thumbnail : localStorage.getItem('thumbnail') || useAuthStore().user.thumbnail ? import.meta.env.VITE_BASE_URL + `/${useAuthStore().user.thumbnail}` : '',
+        // @ts-ignore
+        username: localStorage.getItem('username') || useAuthStore().user.usrename,
     }),
     getters: {},
 

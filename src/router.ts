@@ -33,6 +33,7 @@ router.beforeEach((to, _from, next) => {
         // Redirect to login if the route requires authentication and the user is not authenticated
         next('/login');
     }
+    // @ts-ignore
     else if (to.meta.requiresAdmin && (!authStore.isAuthenticated || authStore.user?.role !== "admin")) {
         console.log(authStore.user)
         next('/unauthorized'); // Redirect to unauthorized page or home

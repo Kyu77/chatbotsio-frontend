@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRouter} from "vue-router";
+import { useRouter, useRoute} from "vue-router";
   import {useAuthStore} from "../../store/authStore.ts"
 import {onMounted, ref, onBeforeMount, watch} from "vue";
   import {useModelStore} from "../../store/modelStore.ts";
@@ -12,7 +12,9 @@ import {useUserStore} from "../../store/userStore.ts";
   const modelStore =   useModelStore()
   const authStore = useAuthStore()
 const userStore = useUserStore()
-  const router = useRouter()
+const router = useRouter()
+const routes = useRoute()
+const pathRef = ref("")
 
 const userThumbnailRef = ref(userStore.thumbnail)
 
@@ -42,6 +44,11 @@ watch(() => userStore.thumbnail, (newThumbnail) => {
       modelStore.fetchModels()
 
   })
+
+watch(() => routes.path, (newPath) => {
+  pathRef.value = newPath
+});
+
 </script>
 
 <template>
@@ -54,7 +61,7 @@ watch(() => userStore.thumbnail, (newThumbnail) => {
           <img src="/drawer.png" alt="" width=32>
         </label>
       </template>
-      <RouterLink to="/" class="btn btn-ghost text-xl">ChatBotSIO</RouterLink>
+      <RouterLink to="/"   class="btn btn-ghost text-xl">ChatBotSIO</RouterLink>
     </div>
 
     <select class="select w-full max-w-xs" v-model="userTheme" @change="themeStore.changeTheme(userTheme)">
@@ -88,7 +95,9 @@ watch(() => userStore.thumbnail, (newThumbnail) => {
               <li><RouterLink to="/register">Register</RouterLink></li>
               <li><RouterLink to="/login">Login</RouterLink></li>
             </template>
-
+          <template v-if="authStore.isAuthenticated && authStore.user!.role === 'admin'">
+           <li> <RouterLink to="/admin/dashboard">Dashboard</RouterLink></li>
+          </template>
          <template v-if="authStore.isAuthenticated">
            <li><RouterLink to="/profile">Profile</RouterLink></li>
            <li @click="onLogout"><a>Logout</a></li>
