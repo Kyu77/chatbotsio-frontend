@@ -1,15 +1,37 @@
 /// <reference types="cypress" />
 
 
-describe('Register Page', () => {
+describe('Login Page', () => {
   beforeEach(() => {
     cy.visit('http://localhost:5173/register');
-  })
-})
+  });
 
-  it('displays two todo items by default', () => {
-    cy.get('h1').contains("Register page")
-  }).timeout(10000)
+  it('devrait afficher un titre h1', () => {
+    cy.wait(1000);
+    cy.get('h1', { timeout: 10000 }).should('be.visible').contains('Register page');
+  });
+
+  it('devrait afficher un form', () => {
+    cy.get('form', { timeout: 10000 }).should('be.visible');
+  });
+
+  it('devrait afficher un input de type text', () => {
+    cy.get('input#username', { timeout: 10000 }).should('be.visible');
+  });
+  it('devrait afficher un input de type email', () => {
+
+    cy.get('input#email', { timeout: 10000 }).should('be.visible');
+  });
+
+  it('devrait afficher un input de type password', () => {
+
+    cy.get('input#password', { timeout: 10000 }).should('be.visible');
+  });
+  it('devrait afficher un button register', () => {
+    cy.get('form button', { timeout: 10000 }).should('be.visible').contains('Register');
+  });
+});
+
 
 /*
 it('can add new todo items', () => {
