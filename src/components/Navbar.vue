@@ -99,7 +99,7 @@ watch(() => routes.path, (newPath) => {
               <li><RouterLink to="/register">Register</RouterLink></li>
               <li><RouterLink to="/login">Login</RouterLink></li>
             </template>
-          <template v-if="authStore.isAuthenticated && authStore.user!.role === 'admin'">
+          <template v-if="authStore.isAuthenticated && authStore.user?.role === 'admin'">
            <li> <RouterLink to="/admin/dashboard">Dashboard</RouterLink></li>
           </template>
          <template v-if="authStore.isAuthenticated">

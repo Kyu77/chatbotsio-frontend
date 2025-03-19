@@ -7,7 +7,6 @@ describe('Register Page', () => {
   });
 
   it('devrait afficher un titre h1', () => {
-    cy.wait(1000);
     cy.get('h1', { timeout: 10000 }).should('be.visible').contains('Login page');
   });
 
