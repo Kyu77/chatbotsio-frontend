@@ -30,8 +30,15 @@ async function onSubmit () {
   }
   const resData = await  response.json()
   authStore.setToken(resData.token)
+  authStore.decodeJwt()
+  const user = authStore.decodeJwt()!
+  if(user.role === "admin") {
+    await router.push("/admin/dashboard")
+  }
+  else {
+    await router.push("/")
+  }
 
-  await router.push("/")
 
 }
 
@@ -53,6 +60,7 @@ async function onSubmit () {
 
     <button type="submit" class="btn btn-primary my-4">Login</button>
   </form>
+
 </template>
 
 <style scoped>

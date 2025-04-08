@@ -1,12 +1,18 @@
 
 import { defineStore } from 'pinia'
-import {jwtDecode} from "jwt-decode";
+import {jwtDecode, JwtPayload} from "jwt-decode";
+
+interface AuthState {
+    token: string | null;
+    user: JwtPayload | null;
+}
 
 export const useAuthStore = defineStore('auth', {
 
-    state: () => ({
+    state:  (): AuthState =>  ({
         token: localStorage.getItem('token') || null, // Initialize token from localStorage
-        user: null, // Store user information if needed
+        // @ts-ignore
+        user:  JSON.parse(localStorage.getItem("user"))  || null // Store user information if needed
     }),
 
 
@@ -29,12 +35,21 @@ export const useAuthStore = defineStore('auth', {
 
             this.clearToken(); // Clear the token
             this.user = null; // Clear user data
+            localStorage.clear();
 
         },
 
         decodeJwt() {
-            if(this.token)
+            if(this.token){
+                const user = jwtDecode(this.token);
+                this.user = user
+                //@ts-ignore
+                localStorage.setItem('username', user.username);
+                localStorage.setItem("user", JSON.stringify(user));
+                //@ts-ignore
+                localStorage.setItem('thumbnail', `${import.meta.env.VITE_BASE_URL}/${user.thumbnail}`);
                 return jwtDecode(this.token)
+            }
         }
     }
 })

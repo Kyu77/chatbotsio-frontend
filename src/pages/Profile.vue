@@ -3,6 +3,7 @@
   import {ref} from "vue";
   import {useAuthStore} from "../../store/authStore.ts";
   import Alert from "../components/Alert.vue";
+  import {useUserStore} from "../../store/userStore.ts";
   const newUserNameRef = ref("")
 
   const oldPasswordRef =ref("")
@@ -10,6 +11,8 @@
   const newThumbnailRef = ref("")
 
   const authStore = useAuthStore()
+  const userStore = useUserStore()
+
 
   const errorUpdateUsernameRef = ref(false)
   const successUpdateUsernameRef = ref(false)
@@ -34,6 +37,8 @@
       return
     }
     successUpdateUsernameRef.value = true
+    const data= await response.json()
+    userStore.setUsername(data.username)
     setTimeout(() => {
       successUpdateUsernameRef.value = false
     }, 3000)
@@ -67,21 +72,18 @@
   const onChangeThumbnail = (event : Event) => {
     // @ts-ignore
     newThumbnailRef.value = event.target.files[0]
-    console.log(event.target.files[0])
   }
 
   const onSubmitNewThumbnail = async () => {
-    console.log(newThumbnailRef.value)
-
     const formData = new FormData()
     formData.append("image", newThumbnailRef.value)
-    console.log(formData)
 
     const response = await  fetch(import.meta.env.VITE_UPDATE_THUMBNAIL, {
       method : "PUT",
       headers : {Authorization: `Bearer ${authStore.token}`},
       body : formData
     })
+
 
     if (!response.ok) {
       errorUpdateThumbnailRef.value = true;
@@ -90,7 +92,9 @@
       }, 3000)
       return
     }
+    const data = await response.json()
 
+    userStore.setThumbnail(import.meta.env.VITE_BASE_URL + '/' +  data.thumbnail)
     successUpdateThumbnailRef.value = true
     setTimeout(() => {
       successUpdateThumbnailRef.value = false
@@ -111,7 +115,7 @@
   <Alert v-if="errorUpdateThumbnailRef" value="Erreur lors de la mise à jour de la photo de profile" class="alert-error"/>
   <Alert v-if="successUpdateThumbnailRef" value="Mise à jour de votre mot de la photo de profile validé" class="alert-success"/>
 
-  <h1>Page de profile</h1>
+  <h1 class="text-center text-4xl my-2">Page de profile</h1>
 
   <div class="w-1/3 mx-auto bordered rounded-2xl p-6 bg-error">
     <h2 class="text-center">Update username</h2>
@@ -152,7 +156,7 @@
     <form class="mx-auto" @submit.prevent="onSubmitNewThumbnail">
       <div>
         <label for="thumbnail">Thumbnail</label>
-        <input @change="onChangeThumbnail" id="thumbnail" type="file" class="file-input file-input-bordered w-full" />
+        <input @change="onChangeThumbnail" id="thumbnail" type="file" class="file-input file-input-bordered w-full"  required/>
       </div>
       <button type="submit" class="btn btn-warning my-4">Update</button>
     </form>

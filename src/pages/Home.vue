@@ -9,12 +9,14 @@ import {useModelStore} from "../../store/modelStore.ts";
 import Alert from "../components/Alert.vue";
 import {marked} from "../utils/marked.ts";
 import type {History, Message} from "../types";
+import {useUserStore} from "../../store/userStore.ts";
 
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 const modelStore = useModelStore()
+const userStore = useUserStore()
 
 const disableSubmitButton = ref(false)
 const userInput = ref("")
@@ -169,7 +171,7 @@ watch(messages, () => {
     <div class="drawer-content">
       <!-- Page content here -->
       <template v-if="messages.length === 0 && !chatId">
-        <h1 class="text-xl text-center"> bonjour Comment puis-je vous aider ?</h1>
+        <h1 class="text-xl text-center"> bonjour {{userStore.username}} Comment puis-je vous aider ?</h1>
       </template>
       <Alert v-if="errorChat" value="Erreur Stream chat" class="alert-error"/>
 

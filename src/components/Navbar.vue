@@ -1,20 +1,36 @@
 <script setup lang="ts">
-  import {useRouter} from "vue-router";
+import { useRouter, useRoute} from "vue-router";
   import {useAuthStore} from "../../store/authStore.ts"
-  import {onMounted, ref, onBeforeMount} from "vue";
+import {onMounted, ref, onBeforeMount, watch} from "vue";
   import {useModelStore} from "../../store/modelStore.ts";
   import {daisyUiThemes} from "../themes";
   import {useThemeStore} from "../../store/themeStore.ts";
+import {useUserStore} from "../../store/userStore.ts";
 
 
   const themeStore = useThemeStore()
   const modelStore =   useModelStore()
   const authStore = useAuthStore()
-  const router = useRouter()
+const userStore = useUserStore()
+const router = useRouter()
+const routes = useRoute()
+const pathRef = ref("")
 
-//@ts-ignore
-const thumbnail = import.meta.env.VITE_BASE_URL + `/${authStore.decodeJwt()!.thumbnail}`
-  const userTheme = ref(themeStore.getCurrentTheme)
+const userThumbnailRef = ref(userStore.thumbnail)
+
+// Watch URL ID update
+watch(() => userStore.thumbnail, (newThumbnail) => {
+  userThumbnailRef.value = newThumbnail
+  userStore.setThumbnail(newThumbnail!)
+});
+
+watch(() => localStorage.getItem("thumbnail"), (newThumbnail) => {
+  userThumbnailRef.value = newThumbnail
+});
+
+
+
+const userTheme = ref(themeStore.getCurrentTheme)
   function onLogout() {
     authStore.logout()
     router.push("/login")
@@ -32,6 +48,11 @@ const thumbnail = import.meta.env.VITE_BASE_URL + `/${authStore.decodeJwt()!.thu
       modelStore.fetchModels()
 
   })
+
+watch(() => routes.path, (newPath) => {
+  pathRef.value = newPath
+});
+
 </script>
 
 <template>
@@ -44,7 +65,7 @@ const thumbnail = import.meta.env.VITE_BASE_URL + `/${authStore.decodeJwt()!.thu
           <img src="/drawer.png" alt="" width=32>
         </label>
       </template>
-      <h1 class="btn btn-ghost text-xl">ChatBotSIO</h1>
+      <RouterLink to="/"   class="btn btn-ghost text-xl">ChatBotSIO</RouterLink>
     </div>
 
     <select class="select w-full max-w-xs" v-model="userTheme" @change="themeStore.changeTheme(userTheme)">
@@ -60,12 +81,13 @@ const thumbnail = import.meta.env.VITE_BASE_URL + `/${authStore.decodeJwt()!.thu
       <div class="dropdown dropdown-end">
         <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
           <div class="w-10 rounded-full">
-            <img v-if="!authStore.isAuthenticated"
-                alt="Tailwind CSS Navbar component"
-                 src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
+
             <img v-if="authStore.isAuthenticated"
                  alt="Tailwind CSS Navbar component"
-                 :src="thumbnail" />
+                 :src="userThumbnailRef" />
+            <img v-if="!authStore.isAuthenticated"
+                 alt="Tailwind CSS Navbar component"
+                 src="" />
           </div>
         </div>
         <ul
@@ -77,7 +99,9 @@ const thumbnail = import.meta.env.VITE_BASE_URL + `/${authStore.decodeJwt()!.thu
               <li><RouterLink to="/register">Register</RouterLink></li>
               <li><RouterLink to="/login">Login</RouterLink></li>
             </template>
-
+          <template v-if="authStore.isAuthenticated && authStore.user?.role === 'admin'">
+           <li> <RouterLink to="/admin/dashboard">Dashboard</RouterLink></li>
+          </template>
          <template v-if="authStore.isAuthenticated">
            <li><RouterLink to="/profile">Profile</RouterLink></li>
            <li @click="onLogout"><a>Logout</a></li>
